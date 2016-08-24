@@ -11,7 +11,7 @@ CMA_FILE	= $(LIB_NAME).cma
 CMXA_FILE	= $(LIB_NAME).cmxa
 LIB_FILE	= $(LIB_NAME).a
 
-PACKAGES	= -package base64 -package yojson -package cryptokit
+PACKAGES	= -package base64 -package yojson -package cryptokit -package re.str
 
 all: build
 
