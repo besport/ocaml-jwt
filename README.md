@@ -68,3 +68,11 @@ let payload =
 #### Get the token representation.
 
 You can get the token representation of a type t with `Jwt.token_of_t`.
+
+#### Decode a token.
+
+As JWT data are encoded with B64, we can retrieve the information like the
+header and payload from the token.
+
+You can use `Jwt.t_of_token` to get a type t with the header and payload encoded
+in the token.

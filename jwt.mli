@@ -1,3 +1,7 @@
+exception Bad_token
+
+exception Bad_payload
+
 (* ------------------------------- *)
 (* ---------- Algorithm ---------- *)
 
@@ -155,6 +159,14 @@ val find_claim :
   payload ->
   string
 
+val payload_of_str :
+  string ->
+  payload
+
+val payload_of_json :
+  Yojson.Basic.json ->
+  payload
+
 val payload_to_json :
   payload ->
   Yojson.Basic.json
@@ -182,10 +194,14 @@ val header_of_t : t -> header
 
 val payload_of_t : t -> payload
 
+val signature_of_t : t -> string
+
 (* getters *)
 (* ------- *)
 
 val token_of_t : t -> string
+
+val t_of_token : string -> t
 
 (* ----------- JWT type ----------- *)
 (* -------------------------------- *)

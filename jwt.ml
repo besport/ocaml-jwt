@@ -1,3 +1,7 @@
+exception Bad_token
+
+exception Bad_payload
+
 (* ------------------------------- *)
 (* ---------- Algorithm ---------- *)
 
@@ -181,6 +185,18 @@ let iter f p = List.iter f p
 
 let map f p = List.map f p
 
+let payload_of_json json =
+  List.map
+    (fun x -> match x with
+    | (claim, `String value) -> (claim, value)
+    | (claim, `Int value) -> (claim, string_of_int value)
+    | _ -> raise Bad_payload
+    )
+    (Yojson.Basic.Util.to_assoc json)
+
+let payload_of_str str =
+  payload_of_json (Yojson.Basic.from_string str)
+
 let payload_to_json payload =
   let members =
     map
@@ -201,23 +217,11 @@ let payload_to_str payload =
 type t =
 {
   header : header ;
-  payload : payload
+  payload : payload ;
+  signature : string
 }
 
-let t_of_header_and_payload header payload = { header ; payload }
-(* ------- *)
-(* getters *)
-
-let header_of_t t = t.header
-
-let payload_of_t t = t.payload
-
-(* getters *)
-(* ------- *)
-
-let token_of_t t =
-  let header = header_of_t t in
-  let payload = payload_of_t t in
+let t_of_header_and_payload header payload =
   let b64_header = (B64.encode (header_to_str header)) in
   let b64_payload = (B64.encode (payload_to_str payload)) in
   let algo = fn_of_algorithm (algorithm_of_header header) in
@@ -225,7 +229,36 @@ let token_of_t t =
   let signature =
     Cryptokit.hash_string algo unsigned_token
   in
-  b64_header ^ "." ^ b64_payload ^ "." ^ (B64.encode signature)
+  { header ; payload ; signature }
+(* ------- *)
+(* getters *)
+
+let header_of_t t = t.header
+
+let payload_of_t t = t.payload
+
+let signature_of_t t = t.signature
+
+(* getters *)
+(* ------- *)
+
+let token_of_t t =
+  let b64_header = (B64.encode (header_to_str (header_of_t t))) in
+  let b64_payload = (B64.encode (payload_to_str (payload_of_t t))) in
+  let b64_signature = (B64.encode (signature_of_t t)) in
+  b64_header ^ "." ^ b64_payload ^ "." ^ b64_signature
+
+let t_of_token token =
+  try
+    let token_splitted = Re_str.split_delim (Re_str.regexp_string ".") token in
+    match token_splitted with
+    | [ header_encoded ; payload_encoded ; signature_encoded ] ->
+        let header = header_of_str (B64.decode header_encoded) in
+        let payload = payload_of_str (B64.decode payload_encoded) in
+        let signature = B64.decode signature_encoded in
+        { header ; payload ; signature }
+    | _ -> raise Bad_token
+  with _ -> raise Bad_token
 
 (* ----------- JWT type ----------- *)
 (* -------------------------------- *)
