@@ -11,6 +11,13 @@ The suggested pronunciation of JWT is the same as the English word "jot".
 
 [RFC7519](https://tools.ietf.org/html/rfc7519)
 
+## How to install?
+
+You can use opam by pinning the repository:
+```
+opam pin add jwt https://github.com/besport/ocaml-jwt.git
+```
+
 ## Documentation
 
 A JWT object is represented by a type `Jwt.t` containing the header (of type
@@ -18,11 +25,11 @@ A JWT object is represented by a type `Jwt.t` containing the header (of type
 
 #### Header
 
-You can choose the algorithm you want to sign the token. An header contains the
+You can choose the algorithm you want to sign the token. A header contains the
 attribute *typ* and *alg*. The attribute *alg* is represented by a sum type
 `Jwt.algorithm`.
 For the moment, only HS256 is supported. You need to give the secret key when
-create an algorithm value.
+you create an algorithm value.
 
 You can create a header with `Jwt.header_of_algorithm_and_type`.
 
@@ -72,7 +79,7 @@ You can get the token representation of a type t with `Jwt.token_of_t`.
 #### Decode a token.
 
 As JWT data are encoded with B64, we can retrieve the information like the
-header and payload from the token.
+header and the payload from the token.
 
-You can use `Jwt.t_of_token` to get a type t with the header and payload encoded
-in the token.
+You can use `Jwt.t_of_token` to get a type t with the header and the payload
+encoded in the token.

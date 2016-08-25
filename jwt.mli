@@ -14,6 +14,14 @@ val fn_of_algorithm :
   algorithm ->
   Cryptokit.hash
 
+val algorithm_to_str :
+  algorithm ->
+  string
+
+val algorithm_of_str :
+  string    ->
+  algorithm
+
 (* ---------- Algorithm ---------- *)
 (* ------------------------------- *)
 

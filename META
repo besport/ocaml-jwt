@@ -1,4 +1,4 @@
 version = "0.1"
-description = "JWT"
+description = "Implementation of JSON Web Tokens in OCaml"
 archive(byte) = "jwt.cma"
 archive(native) = "jwt.cmxa"
