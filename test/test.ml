@@ -22,7 +22,7 @@ let header =
 
 let _ =
   print_endline "Test header_of_json" ;
-  print_endline (Jwt.header_to_str header) ;
+  print_endline (Jwt.string_of_header header) ;
   print_endline "----------"
 
 (* From build function *)
@@ -31,7 +31,7 @@ let header =
 
 let _ =
   print_endline "Test header_of_algorithm_and_typ" ;
-  print_endline (Jwt.header_to_str header) ;
+  print_endline (Jwt.string_of_header header) ;
   print_endline "----------"
 
 (* HEADER *)
@@ -48,7 +48,7 @@ let payload =
 
 let _ =
   print_endline "Test payload" ;
-  print_endline (Jwt.payload_to_str payload) ;
+  print_endline (Jwt.string_of_payload payload) ;
   print_endline "----------"
 
 let payload =
@@ -63,7 +63,7 @@ let payload =
 
 let _ =
   print_endline "Test payload_of_json" ;
-  print_endline (Jwt.payload_to_str payload) ;
+  print_endline (Jwt.string_of_payload payload) ;
   print_endline "----------"
 
 (* PAYLOAD *)
@@ -82,9 +82,9 @@ let _ =
   let t = Jwt.t_of_header_and_payload header payload in
   let t_2 = Jwt.t_of_token (Jwt.token_of_t t) in
   print_endline "Test t_of_token. The next lines must be equal.";
-  print_endline (Jwt.header_to_str header) ;
-  print_endline (Jwt.header_to_str (Jwt.header_of_t t_2)) ;
-  print_endline (Jwt.payload_to_str payload) ;
-  print_endline (Jwt.payload_to_str (Jwt.payload_of_t t_2)) ;
+  print_endline (Jwt.string_of_header header) ;
+  print_endline (Jwt.string_of_header (Jwt.header_of_t t_2)) ;
+  print_endline (Jwt.string_of_payload payload) ;
+  print_endline (Jwt.string_of_payload (Jwt.payload_of_t t_2)) ;
   print_endline (B64.encode (Jwt.signature_of_t t)) ;
   print_endline (B64.encode (Jwt.signature_of_t t_2))

@@ -14,11 +14,11 @@ val fn_of_algorithm :
   algorithm ->
   Cryptokit.hash
 
-val algorithm_to_str :
+val string_of_algorithm :
   algorithm ->
   string
 
-val algorithm_of_str :
+val algorithm_of_string :
   string    ->
   algorithm
 
@@ -46,11 +46,11 @@ val typ_of_header : header -> string
 (* getters *)
 (* ------- *)
 
-val header_to_str : header -> string
+val string_of_header : header -> string
 
-val header_to_json : header -> Yojson.Basic.json
+val json_of_header : header -> Yojson.Basic.json
 
-val header_of_str : string -> header
+val header_of_string : string -> header
 
 val header_of_json : Yojson.Basic.json -> header
 
@@ -64,7 +64,7 @@ type claim
 
 val claim : string -> claim
 
-val claim_to_str : claim -> string
+val string_of_claim : claim -> string
 
 (* ------------- *)
 (* Common claims *)
@@ -167,7 +167,7 @@ val find_claim :
   payload ->
   string
 
-val payload_of_str :
+val string_of_payload :
   string ->
   payload
 
@@ -175,11 +175,11 @@ val payload_of_json :
   Yojson.Basic.json ->
   payload
 
-val payload_to_json :
+val json_of_payload :
   payload ->
   Yojson.Basic.json
 
-val payload_to_str :
+val string_of_payload :
   payload ->
   string
 

@@ -14,11 +14,11 @@ let fn_of_algorithm = function
   | HS256 x -> Cryptokit.MAC.hmac_sha256 x
   | Unknown -> Cryptokit.MAC.hmac_sha256 ""
 
-let algorithm_to_str = function
+let string_of_algorithm = function
   | HS256 x -> "HS256"
   | Unknown -> ""
 
-let algorithm_of_str = function
+let algorithm_of_string = function
   | "HS256" -> HS256 ""
   | _       -> Unknown
 (* ---------- Algorithm ---------- *)
@@ -46,15 +46,15 @@ let typ_of_header h = h.typ
 (* getters *)
 (* ------- *)
 
-let header_to_json header =
+let json_of_header header =
   `Assoc
   [
-    ("alg", `String (algorithm_to_str (algorithm_of_header header))) ;
+    ("alg", `String (string_of_algorithm (algorithm_of_header header))) ;
     ("typ", `String (typ_of_header header))
   ]
 
-let header_to_str header =
-  let json = header_to_json header in Yojson.Basic.to_string json
+let string_of_header header =
+  let json = json_of_header header in Yojson.Basic.to_string json
 
 let header_of_json json =
   let alg =
@@ -63,9 +63,9 @@ let header_of_json json =
   let typ =
     json |> Yojson.Basic.Util.member "typ" |> Yojson.Basic.Util.to_string
   in
-  { alg = algorithm_of_str alg ; typ }
+  { alg = algorithm_of_string alg ; typ }
 
-let header_of_str str =
+let header_of_string str =
   header_of_json (Yojson.Basic.from_string str)
 
 (* ----------- Header ---------- *)
@@ -78,7 +78,7 @@ type claim         = string
 
 let claim c        = c
 
-let claim_to_str c = c
+let string_of_claim c = c
 
 (* ------------- *)
 (* Common claims *)
@@ -177,7 +177,7 @@ let add_claim claim value payload =
 
 let find_claim claim payload =
   let (_, value) =
-    List.find (fun (c, v) -> (claim_to_str c) = (claim_to_str claim)) payload
+    List.find (fun (c, v) -> (string_of_claim c) = (string_of_claim claim)) payload
   in
   value
 
@@ -194,19 +194,19 @@ let payload_of_json json =
     )
     (Yojson.Basic.Util.to_assoc json)
 
-let payload_of_str str =
+let payload_of_string str =
   payload_of_json (Yojson.Basic.from_string str)
 
-let payload_to_json payload =
+let json_of_payload payload =
   let members =
     map
-      (fun (claim, value) -> ((claim_to_str claim), `String value))
+      (fun (claim, value) -> ((string_of_claim claim), `String value))
       payload
   in
   `Assoc members
 
-let payload_to_str payload =
-  Yojson.Basic.to_string (payload_to_json payload)
+let string_of_payload payload =
+  Yojson.Basic.to_string (json_of_payload payload)
 
 (* ----------- Payload ---------- *)
 (* ------------------------------ *)
@@ -222,8 +222,8 @@ type t =
 }
 
 let t_of_header_and_payload header payload =
-  let b64_header = (B64.encode (header_to_str header)) in
-  let b64_payload = (B64.encode (payload_to_str payload)) in
+  let b64_header = (B64.encode (string_of_header header)) in
+  let b64_payload = (B64.encode (string_of_payload payload)) in
   let algo = fn_of_algorithm (algorithm_of_header header) in
   let unsigned_token = b64_header ^ "." ^ b64_payload in
   let signature =
@@ -243,8 +243,8 @@ let signature_of_t t = t.signature
 (* ------- *)
 
 let token_of_t t =
-  let b64_header = (B64.encode (header_to_str (header_of_t t))) in
-  let b64_payload = (B64.encode (payload_to_str (payload_of_t t))) in
+  let b64_header = (B64.encode (string_of_header (header_of_t t))) in
+  let b64_payload = (B64.encode (string_of_payload (payload_of_t t))) in
   let b64_signature = (B64.encode (signature_of_t t)) in
   b64_header ^ "." ^ b64_payload ^ "." ^ b64_signature
 
@@ -253,8 +253,8 @@ let t_of_token token =
     let token_splitted = Re_str.split_delim (Re_str.regexp_string ".") token in
     match token_splitted with
     | [ header_encoded ; payload_encoded ; signature_encoded ] ->
-        let header = header_of_str (B64.decode header_encoded) in
-        let payload = payload_of_str (B64.decode payload_encoded) in
+        let header = header_of_string (B64.decode header_encoded) in
+        let payload = payload_of_string (B64.decode payload_encoded) in
         let signature = B64.decode signature_encoded in
         { header ; payload ; signature }
     | _ -> raise Bad_token

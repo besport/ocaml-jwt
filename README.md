@@ -42,7 +42,7 @@ Jwt.header_of_algorithm_and_typ (Jwt.HS256 "SecretKeyNotReallySecret") "JWT"
 
 Possible claims are represented by a type `Jwt.claim`. You can create a new
 claim with `Jwt.claim "claim name"` and get the claim name with
-`Jwt.claim_to_str claim`. Here a list of predefined claims:
+`Jwt.string_of_claim claim`. Here a list of predefined claims:
 
 * iss
 * sub
