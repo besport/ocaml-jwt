@@ -8,7 +8,7 @@ bug-reports:  "https://github.com/besport/ocaml-jwt/issues"
 
 dev-repo:     "https://github.com/besport/ocaml-jwt"
 
-license:      "LGPL-3.0 with OCaml linking exception"
+license:      ""
 
 version:      "0.1"
 
