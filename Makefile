@@ -9,7 +9,7 @@ CMI_FILES	= $(patsubst %.mli, %.cmi, $(MLI_FILES))
 LIB_NAME	= jwt
 CMA_FILE	= $(LIB_NAME).cma
 CMXA_FILE	= $(LIB_NAME).cmxa
-LIB_FILE	= $(LIB_NAME).a
+A_FILE		= $(LIB_NAME).a
 
 PACKAGES	= -package base64 -package yojson -package cryptokit -package re.str
 
@@ -20,7 +20,7 @@ build: $(CMI_FILES) $(CMO_FILES) $(CMX_FILES)
 	ocamlfind ocamlopt -a -o $(CMXA_FILE) $(CMX_FILES)
 
 install: build
-	ocamlfind install $(LIB_NAME) META $(CMA_FILE) $(CMXA_FILE) $(CMI_FILES)
+	ocamlfind install $(LIB_NAME) META $(CMA_FILE) $(CMXA_FILE) $(A_FILE) $(CMI_FILES)
 
 remove:
 	ocamlfind remove $(LIB_NAME)
@@ -38,7 +38,7 @@ clean:
 	$(RM) $(CMI_FILES) $(CMX_FILES) $(CMO_FILES) $(OBJ_FILES)
 
 fclean: clean
-	$(RM) $(CMXA_FILE) $(CMA_FILE) $(LIB_FILE)
+	$(RM) $(CMXA_FILE) $(CMA_FILE) $(A_FILE)
 
 test:
 	ocamlfind ocamlc -o test.out $(PACKAGES) -package jwt -linkpkg test/test.ml
