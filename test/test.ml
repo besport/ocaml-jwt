@@ -1,3 +1,28 @@
+(* ocaml-jwt
+ * https://github.com/besport/ocaml-jwt
+ *
+ * Copyright (C) Be Sport
+ * Author Danny Willems
+ *
+ * This program is released under the LGPL version 2.1 or later (see the text
+ * below) with the additional exemption that compiling, linking, and/or using
+ * OpenSSL is allowed.
+ *
+ * As a special exception to the GNU Library General Public License, you
+ * may also link, statically or dynamically, a "work that uses the Library"
+ * with a publicly distributed version of the Library to produce an
+ * executable file containing portions of the Library, and distribute
+ * that executable file under terms of your choice, without any of the
+ * additional requirements listed in clause 6 of the GNU Library General
+ * Public License.  By "a publicly distributed version of the Library",
+ * we mean either the unmodified Library, or a
+ * modified version of the Library that is distributed under the
+ * conditions defined in clause 3 of the GNU Library General Public
+ * License.  This exception does not however invalidate any other reasons
+ * why the executable file might be covered by the GNU Library General
+ * Public License.
+*)
+
 let generate_random_string length =
   let random_character () = match Random.int (26 + 26 + 10) with
     n when n < 26 -> int_of_char 'a' + n

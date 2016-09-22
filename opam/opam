@@ -6,9 +6,9 @@ author:       "Danny Willems <contact@danny-willems.be>"
 homepage:     "https://github.com/besport/ocaml-jwt"
 bug-reports:  "https://github.com/besport/ocaml-jwt/issues"
 
-dev-repo:     "https://github.com/besport/ocaml-jwt"
+dev-repo:     "https://github.com/besport/ocaml-jwt.git"
 
-license:      ""
+license:      "LGPL-2.1 with OCaml linking exception"
 
 version:      "0.1"
 
