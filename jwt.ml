@@ -82,12 +82,8 @@ let string_of_header header =
   let json = json_of_header header in Yojson.Basic.to_string json
 
 let header_of_json json =
-  let alg =
-    json |> Yojson.Basic.Util.member "alg" |> Yojson.Basic.Util.to_string
-  in
-  let typ =
-    json |> Yojson.Basic.Util.member "typ" |> Yojson.Basic.Util.to_string
-  in
+  let alg = Yojson.Basic.Util.to_string (Yojson.Basic.Util.member "alg" json) in
+  let typ = Yojson.Basic.Util.to_string (Yojson.Basic.Util.member "typ" json) in
   { alg = algorithm_of_string alg ; typ }
 
 let header_of_string str =
