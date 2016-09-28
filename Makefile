@@ -20,7 +20,9 @@ build: $(CMI_FILES) $(CMO_FILES) $(CMX_FILES)
 	ocamlfind ocamlopt -a -o $(CMXA_FILE) $(CMX_FILES)
 
 install: build
-	ocamlfind install $(LIB_NAME) META $(CMA_FILE) $(CMXA_FILE) $(A_FILE) $(CMI_FILES)
+	ocamlfind install $(LIB_NAME) META $(CMA_FILE) \
+	    $(CMXA_FILE) $(A_FILE) $(CMI_FILES) $(CMX_FILES) $(CMO_FILES) \
+	    $(OBJ_FILES)
 
 remove:
 	ocamlfind remove $(LIB_NAME)
