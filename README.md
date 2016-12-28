@@ -13,7 +13,12 @@ The suggested pronunciation of JWT is the same as the English word "jot".
 
 ## How to install?
 
-You can use opam by pinning the repository:
+You can use OPAM to get the last released version:
+```
+opam install jwt
+```
+
+If you want the development version, you can pin the repository:
 ```
 opam pin add jwt https://github.com/besport/ocaml-jwt.git
 ```
