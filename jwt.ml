@@ -242,9 +242,15 @@ type t =
   signature : string
 }
 
+let b64_url_encode str =
+  B64.encode ~pad:false ~alphabet:B64.uri_safe_alphabet str
+
+let b64_url_decode str =
+  B64.decode ~alphabet:B64.uri_safe_alphabet str
+
 let t_of_header_and_payload header payload =
-  let b64_header = (B64.encode (string_of_header header)) in
-  let b64_payload = (B64.encode (string_of_payload payload)) in
+  let b64_header = (b64_url_encode (string_of_header header)) in
+  let b64_payload = (b64_url_encode (string_of_payload payload)) in
   let algo = fn_of_algorithm (algorithm_of_header header) in
   let unsigned_token = b64_header ^ "." ^ b64_payload in
   let signature =
@@ -264,9 +270,9 @@ let signature_of_t t = t.signature
 (* ------- *)
 
 let token_of_t t =
-  let b64_header = (B64.encode (string_of_header (header_of_t t))) in
-  let b64_payload = (B64.encode (string_of_payload (payload_of_t t))) in
-  let b64_signature = (B64.encode (signature_of_t t)) in
+  let b64_header = (b64_url_encode (string_of_header (header_of_t t))) in
+  let b64_payload = (b64_url_encode (string_of_payload (payload_of_t t))) in
+  let b64_signature = (b64_url_encode (signature_of_t t)) in
   b64_header ^ "." ^ b64_payload ^ "." ^ b64_signature
 
 let t_of_token token =
@@ -274,9 +280,9 @@ let t_of_token token =
     let token_splitted = Re_str.split_delim (Re_str.regexp_string ".") token in
     match token_splitted with
     | [ header_encoded ; payload_encoded ; signature_encoded ] ->
-        let header = header_of_string (B64.decode header_encoded) in
-        let payload = payload_of_string (B64.decode payload_encoded) in
-        let signature = B64.decode signature_encoded in
+        let header = header_of_string (b64_url_decode header_encoded) in
+        let payload = payload_of_string (b64_url_decode payload_encoded) in
+        let signature = b64_url_decode signature_encoded in
         { header ; payload ; signature }
     | _ -> raise Bad_token
   with _ -> raise Bad_token
