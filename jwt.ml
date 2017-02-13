@@ -33,18 +33,22 @@ exception Bad_payload
 (* IMPROVEME: add other algorithm *)
 type algorithm =
   | HS256 of string (* the argument is the secret key *)
+  | HS512 of string (* the argument is the secret key *)
   | Unknown
 
 let fn_of_algorithm = function
   | HS256 x -> Cryptokit.MAC.hmac_sha256 x
+  | HS512 x -> Cryptokit.MAC.hmac_sha512 x
   | Unknown -> Cryptokit.MAC.hmac_sha256 ""
 
 let string_of_algorithm = function
   | HS256 x -> "HS256"
+  | HS512 x -> "HS512"
   | Unknown -> ""
 
 let algorithm_of_string = function
   | "HS256" -> HS256 ""
+  | "HS512" -> HS512 ""
   | _       -> Unknown
 (* ---------- Algorithm ---------- *)
 (* ------------------------------- *)
