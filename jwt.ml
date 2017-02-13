@@ -83,7 +83,11 @@ let string_of_header header =
 
 let header_of_json json =
   let alg = Yojson.Basic.Util.to_string (Yojson.Basic.Util.member "alg" json) in
-  let typ = Yojson.Basic.Util.to_string (Yojson.Basic.Util.member "typ" json) in
+  let typ =
+    match Yojson.Basic.Util.to_string_option (Yojson.Basic.Util.member "typ" json) with
+    | Some typ_ -> typ_
+    | None -> "JWT"
+  in
   { alg = algorithm_of_string alg ; typ }
 
 let header_of_string str =
