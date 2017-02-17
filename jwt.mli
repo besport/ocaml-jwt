@@ -33,6 +33,7 @@ exception Bad_payload
 (* IMPROVEME: add other algorithm *)
 type algorithm =
   | HS256 of string (* the argument is the secret key *)
+  | HS512 of string (* the argument is the secret key *)
   | Unknown
 
 val fn_of_algorithm :
@@ -63,7 +64,7 @@ val header_of_algorithm_and_typ :
 (* ------- *)
 (* getters *)
 
-(* IMPROVEME: for the moment, only HS256 is supported. *)
+(* IMPROVEME: for the moment, only HS256 and HS512 are supported. *)
 val algorithm_of_header : header -> algorithm
 
 val typ_of_header : header -> string
