@@ -33,7 +33,7 @@ A JWT object is represented by a type `Jwt.t` containing the header (of type
 You can choose the algorithm you want to sign the token. A header contains the
 attribute *typ* and *alg*. The attribute *alg* is represented by a sum type
 `Jwt.algorithm`.
-For the moment, only HS256 is supported. You need to give the secret key when
+For the moment, only HS256 and HS512 are supported. You need to give the secret key when
 you create an algorithm value.
 
 You can create a header with `Jwt.header_of_algorithm_and_type`.
