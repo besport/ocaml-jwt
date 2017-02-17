@@ -56,7 +56,7 @@ let algorithm_of_string = function
 type header =
 {
   alg : algorithm ;
-  typ : string ; (* IMPROVEME: Need a sum type *)
+  typ : string option; (* IMPROVEME: Need a sum type *)
 }
 
 let header_of_algorithm_and_typ alg typ = { alg ; typ }
@@ -73,21 +73,17 @@ let typ_of_header h = h.typ
 
 let json_of_header header =
   `Assoc
-  [
-    ("alg", `String (string_of_algorithm (algorithm_of_header header))) ;
-    ("typ", `String (typ_of_header header))
-  ]
+    (("alg", `String (string_of_algorithm (algorithm_of_header header))) ::
+     (match typ_of_header header with
+      | Some typ -> [("typ", `String typ)]
+      | None -> []))
 
 let string_of_header header =
   let json = json_of_header header in Yojson.Basic.to_string json
 
 let header_of_json json =
   let alg = Yojson.Basic.Util.to_string (Yojson.Basic.Util.member "alg" json) in
-  let typ =
-    match Yojson.Basic.Util.to_string_option (Yojson.Basic.Util.member "typ" json) with
-    | Some typ_ -> typ_
-    | None -> "JWT"
-  in
+  let typ = Yojson.Basic.Util.to_string_option (Yojson.Basic.Util.member "typ" json) in
   { alg = algorithm_of_string alg ; typ }
 
 let header_of_string str =
