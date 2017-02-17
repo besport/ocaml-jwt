@@ -58,7 +58,7 @@ type header
 
 val header_of_algorithm_and_typ :
   algorithm ->
-  string    ->
+  string option ->
   header
 
 (* ------- *)
@@ -67,7 +67,7 @@ val header_of_algorithm_and_typ :
 (* IMPROVEME: for the moment, only HS256 and HS512 are supported. *)
 val algorithm_of_header : header -> algorithm
 
-val typ_of_header : header -> string
+val typ_of_header : header -> string option
 
 (* getters *)
 (* ------- *)
