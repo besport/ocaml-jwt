@@ -1,0 +1,13 @@
+B ../_build/default/lib
+FLG -w -40
+PKG base64
+PKG biniou
+PKG bytes
+PKG cryptokit
+PKG easy-format
+PKG re
+PKG re.emacs
+PKG re.str
+PKG unix
+PKG yojson
+PKG zarith

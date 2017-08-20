@@ -1,0 +1,6 @@
+(library
+  ((name jwt)
+  (public_name ocaml-jwt)
+  (modules (jwt))
+  (libraries (base64 yojson cryptokit re.str)))
+)

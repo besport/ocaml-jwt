@@ -1,10 +1,2 @@
-*.a
-*.cma
-*.cmxa
-
-*.cmx
-*.cmo
-*.cmi
-*.o
-
-*.out
+_build/
+*.install
