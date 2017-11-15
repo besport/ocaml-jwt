@@ -17,7 +17,7 @@ install: [make "install"]
 remove: [make "remove"]
 
 depends: [
-  "base64"
+  "base64" {>= "2.0.0"}
   "yojson"
   "cryptokit"
   "re"
