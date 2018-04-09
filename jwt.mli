@@ -32,13 +32,10 @@ exception Bad_payload
 
 (* IMPROVEME: add other algorithm *)
 type algorithm =
+  | RS256 of Nocrypto.Rsa.priv
   | HS256 of string (* the argument is the secret key *)
   | HS512 of string (* the argument is the secret key *)
   | Unknown
-
-val fn_of_algorithm :
-  algorithm ->
-  Cryptokit.hash
 
 val string_of_algorithm :
   algorithm ->

@@ -20,5 +20,6 @@ depends: [
   "base64"
   "yojson"
   "cryptokit"
+  "nocrypto"
   "re"
 ]

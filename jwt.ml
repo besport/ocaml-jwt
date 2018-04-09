@@ -32,16 +32,19 @@ exception Bad_payload
 
 (* IMPROVEME: add other algorithm *)
 type algorithm =
+  | RS256 of Nocrypto.Rsa.priv
   | HS256 of string (* the argument is the secret key *)
   | HS512 of string (* the argument is the secret key *)
   | Unknown
 
 let fn_of_algorithm = function
-  | HS256 x -> Cryptokit.MAC.hmac_sha256 x
-  | HS512 x -> Cryptokit.MAC.hmac_sha512 x
-  | Unknown -> Cryptokit.MAC.hmac_sha256 ""
+  | RS256 key -> (fun input_str -> Nocrypto.Rsa.PKCS1.sign ~hash:`SHA256 ~key (`Message (Cstruct.of_string input_str)) |> Cstruct.to_string)
+  | HS256 x -> Cryptokit.hash_string (Cryptokit.MAC.hmac_sha256 x)
+  | HS512 x -> Cryptokit.hash_string (Cryptokit.MAC.hmac_sha512 x)
+  | Unknown -> Cryptokit.hash_string (Cryptokit.MAC.hmac_sha256 "")
 
 let string_of_algorithm = function
+  | RS256 _ -> "RS256"
   | HS256 x -> "HS256"
   | HS512 x -> "HS512"
   | Unknown -> ""
@@ -257,9 +260,7 @@ let t_of_header_and_payload header payload =
   let b64_payload = (b64_url_encode (string_of_payload payload)) in
   let algo = fn_of_algorithm (algorithm_of_header header) in
   let unsigned_token = b64_header ^ "." ^ b64_payload in
-  let signature =
-    Cryptokit.hash_string algo unsigned_token
-  in
+  let signature = algo unsigned_token in
   { header ; payload ; signature }
 (* ------- *)
 (* getters *)
