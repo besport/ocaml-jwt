@@ -301,3 +301,72 @@ let t_of_token token =
 
 (* ----------- JWT type ----------- *)
 (* -------------------------------- *)
+
+(* ---------------------------------- *)
+(* ----------- Verification ---------- *)
+
+let asn1_sha256 =
+  Cstruct.of_string "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20"
+
+let pkcs1_sig header body =
+  let hlen = Cstruct.len header in
+  if Cstruct.check_bounds body hlen
+  then
+    match Cstruct.split ~start:0 body hlen with
+    | a, b when Cstruct.equal a header -> Some b
+    | _ -> None
+  else
+    None
+
+let find_jwk ~jwks alg kid kty =
+  let module J = Yojson.Basic.Util in
+  let find_matching key =
+    J.member "alg" key = `String alg &&
+      J.member "kid" key = `String kid &&
+        J.member "kty" key = `String kty
+  in
+  match List.find find_matching @@ J.to_list jwks with
+  | exception Not_found -> None
+  | key ->
+     match J.member "n" key, J.member "e" key with
+     | `String n, `String e -> Some (n, e)
+     | _ -> None
+
+let rs256 n e signature unsigned_token =
+  let open Nocrypto in
+  let open Numeric in
+  let sign = Cstruct.of_string signature in
+  let n = Z.of_cstruct_be @@ Cstruct.of_string n in
+  let e = Z.of_cstruct_be @@ Cstruct.of_string e in
+  match Rsa.PKCS1.sig_decode ~key:Rsa.{n;e} sign with
+  | None -> false
+  | Some asn1_sign ->
+     match pkcs1_sig asn1_sha256 asn1_sign with
+     | None -> false
+     | Some decripted_sign ->
+        let token_hash = Hash.SHA256.digest @@ Cstruct.of_string unsigned_token in
+        Cstruct.equal decripted_sign token_hash
+
+let verify ~alg ~jwks t =
+  assert (alg = "RS256");
+  let header = header_of_t t in
+  let payload = payload_of_t t in
+  let signature = signature_of_t t in
+  let unsigned_token = unsigned_token_of_header_and_payload header payload in
+  let module J = Yojson.Basic.Util in
+  if typ_of_header header = Some alg then
+    match kid_of_header header with
+    | Some kid -> begin
+        match find_jwk ~jwks alg kid "RSA" with
+        | Some (n, e) ->
+           let n = b64_url_decode n in
+           let e = b64_url_decode e in
+           rs256 n e signature unsigned_token
+        | None -> false
+      end
+    | None -> false
+  else
+    false
+
+(* ----------- Verification ---------- *)
+(* ---------------------------------- *)
