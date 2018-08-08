@@ -64,9 +64,10 @@ type header =
 {
   alg : algorithm ;
   typ : string option; (* IMPROVEME: Need a sum type *)
+  kid : string option
 }
 
-let header_of_algorithm_and_typ alg typ = { alg ; typ }
+let header_of_algorithm_and_typ alg typ = { alg ; typ ; kid = None}
 
 (* ------- *)
 (* getters *)
@@ -74,6 +75,8 @@ let header_of_algorithm_and_typ alg typ = { alg ; typ }
 let algorithm_of_header h = h.alg
 
 let typ_of_header h = h.typ
+
+let kid_of_header h = h.kid
 
 (* getters *)
 (* ------- *)
@@ -91,7 +94,8 @@ let string_of_header header =
 let header_of_json json =
   let alg = Yojson.Basic.Util.to_string (Yojson.Basic.Util.member "alg" json) in
   let typ = Yojson.Basic.Util.to_string_option (Yojson.Basic.Util.member "typ" json) in
-  { alg = algorithm_of_string alg ; typ }
+  let kid = Yojson.Basic.Util.to_string_option (Yojson.Basic.Util.member "kid" json) in
+  { alg = algorithm_of_string alg ; typ ; kid }
 
 let header_of_string str =
   header_of_json (Yojson.Basic.from_string str)
