@@ -259,11 +259,14 @@ let b64_url_encode str =
 let b64_url_decode str =
   B64.decode ~alphabet:B64.uri_safe_alphabet str
 
-let t_of_header_and_payload header payload =
+let unsigned_token_of_header_and_payload header payload =
   let b64_header = (b64_url_encode (string_of_header header)) in
   let b64_payload = (b64_url_encode (string_of_payload payload)) in
+  b64_header ^ "." ^ b64_payload
+
+let t_of_header_and_payload header payload =
   let algo = fn_of_algorithm (algorithm_of_header header) in
-  let unsigned_token = b64_header ^ "." ^ b64_payload in
+  let unsigned_token = unsigned_token_of_header_and_payload header payload in
   let signature = algo unsigned_token in
   { header ; payload ; signature }
 (* ------- *)
