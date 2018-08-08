@@ -289,7 +289,7 @@ let token_of_t t =
 
 let t_of_token token =
   try
-    let token_splitted = Re_str.split_delim (Re_str.regexp_string ".") token in
+    let token_splitted = Re.Str.split_delim (Re.Str.regexp_string ".") token in
     match token_splitted with
     | [ header_encoded ; payload_encoded ; signature_encoded ] ->
         let header = header_of_string (b64_url_decode header_encoded) in
