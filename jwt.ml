@@ -86,9 +86,12 @@ let kid_of_header h = h.kid
 let json_of_header header =
   `Assoc
     (("alg", `String (string_of_algorithm (algorithm_of_header header))) ::
-     (match typ_of_header header with
-      | Some typ -> [("typ", `String typ)]
-      | None -> []))
+       ((match typ_of_header header with
+        | Some typ -> [("typ", `String typ)]
+        | None -> [])
+        @(match kid_of_header header with
+        | Some kid -> [("kid", `String kid)]
+        | None -> [])))
 
 let string_of_header header =
   let json = json_of_header header in Yojson.Basic.to_string json
