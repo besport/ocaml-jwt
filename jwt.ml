@@ -356,19 +356,19 @@ let verify ~alg ~jwks t =
   let signature = signature_of_t t in
   let unsigned_token = unsigned_token_of_header_and_payload header payload in
   let module J = Yojson.Basic.Util in
-  if typ_of_header header = Some alg then
-    match kid_of_header header with
-    | Some kid -> begin
+  typ_of_header header = Some alg
+  && match kid_of_header header with
+     | None -> false
+     | Some kid ->
         match find_jwk ~jwks alg kid "RSA" with
+        | None -> false
         | Some (n, e) ->
            let n = b64_url_decode n in
            let e = b64_url_decode e in
            rs256 n e signature unsigned_token
-        | None -> false
-      end
-    | None -> false
-  else
-    false
+           && match List.assoc "exp" payload with
+              | exp -> int_of_string exp > int_of_float @@ Unix.gettimeofday ()
+              | exception Not_found -> true
 
 (* ----------- Verification ---------- *)
 (* ---------------------------------- *)
