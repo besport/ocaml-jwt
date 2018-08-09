@@ -66,6 +66,8 @@ val algorithm_of_header : header -> algorithm
 
 val typ_of_header : header -> string option
 
+val kid_of_header : header -> string option
+
 (* getters *)
 (* ------- *)
 
@@ -236,3 +238,5 @@ val t_of_token : string -> t
 
 (* ----------- JWT type ----------- *)
 (* -------------------------------- *)
+
+val verify :  alg:string -> jwks:Yojson.Basic.json -> t -> bool
