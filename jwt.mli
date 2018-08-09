@@ -32,7 +32,7 @@ exception Bad_payload
 
 (* IMPROVEME: add other algorithm *)
 type algorithm =
-  | RS256 of Nocrypto.Rsa.priv
+  | RS256 of Nocrypto.Rsa.priv option
   | HS256 of string (* the argument is the secret key *)
   | HS512 of string (* the argument is the secret key *)
   | Unknown

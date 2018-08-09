@@ -32,13 +32,14 @@ exception Bad_payload
 
 (* IMPROVEME: add other algorithm *)
 type algorithm =
-  | RS256 of Nocrypto.Rsa.priv
+  | RS256 of Nocrypto.Rsa.priv option
   | HS256 of string (* the argument is the secret key *)
   | HS512 of string (* the argument is the secret key *)
   | Unknown
 
 let fn_of_algorithm = function
-  | RS256 key -> (fun input_str -> Nocrypto.Rsa.PKCS1.sign ~hash:`SHA256 ~key (`Message (Cstruct.of_string input_str)) |> Cstruct.to_string)
+  | RS256 (Some key) -> (fun input_str -> Nocrypto.Rsa.PKCS1.sign ~hash:`SHA256 ~key (`Message (Cstruct.of_string input_str)) |> Cstruct.to_string)
+  | RS256 None -> failwith "Not supported"
   | HS256 x -> Cryptokit.hash_string (Cryptokit.MAC.hmac_sha256 x)
   | HS512 x -> Cryptokit.hash_string (Cryptokit.MAC.hmac_sha512 x)
   | Unknown -> Cryptokit.hash_string (Cryptokit.MAC.hmac_sha256 "")
@@ -52,6 +53,7 @@ let string_of_algorithm = function
 let algorithm_of_string = function
   | "HS256" -> HS256 ""
   | "HS512" -> HS512 ""
+  | "RS256" -> RS256 None
   | _       -> Unknown
 (* ---------- Algorithm ---------- *)
 (* ------------------------------- *)
