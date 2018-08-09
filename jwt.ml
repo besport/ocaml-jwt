@@ -367,7 +367,7 @@ let verify ~alg ~jwks t =
            let e = b64_url_decode e in
            rs256 n e signature unsigned_token
            && match List.assoc "exp" payload with
-              | exp -> int_of_string exp > int_of_float @@ Unix.gettimeofday ()
+              | exp -> int_of_string exp > int_of_float @@ Unix.time ()
               | exception Not_found -> true
 
 (* ----------- Verification ---------- *)
