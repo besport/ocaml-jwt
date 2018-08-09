@@ -274,7 +274,7 @@ let t_of_header_and_payload header payload =
   let algo = fn_of_algorithm (algorithm_of_header header) in
   let unsigned_token = unsigned_token_of_header_and_payload header payload in
   let signature = algo unsigned_token in
-  { header ; payload ; signature }
+  { header ; payload ; signature ; unsigned_token }
 (* ------- *)
 (* getters *)
 
@@ -284,6 +284,7 @@ let payload_of_t t = t.payload
 
 let signature_of_t t = t.signature
 
+let unsigned_token_of_t t = t.unsigned_token
 (* getters *)
 (* ------- *)
 
@@ -359,7 +360,7 @@ let verify ~alg ~jwks t =
   let header = header_of_t t in
   let payload = payload_of_t t in
   let signature = signature_of_t t in
-  let unsigned_token = unsigned_token_of_header_and_payload header payload in
+  let unsigned_token = unsigned_token_of_t t in
   let module J = Yojson.Basic.Util in
   typ_of_header header = Some "JWT"
   && algorithm_of_header header |> string_of_algorithm = alg

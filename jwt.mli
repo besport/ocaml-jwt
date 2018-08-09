@@ -229,6 +229,8 @@ val payload_of_t : t -> payload
 
 val signature_of_t : t -> string
 
+val unsigned_token_of_t : t -> string
+
 (* getters *)
 (* ------- *)
 
@@ -239,4 +241,4 @@ val t_of_token : string -> t
 (* ----------- JWT type ----------- *)
 (* -------------------------------- *)
 
-val verify :  alg:string -> jwks:Yojson.Basic.json -> t -> bool
+val verify : alg:string -> jwks:Yojson.Basic.json -> t -> bool
