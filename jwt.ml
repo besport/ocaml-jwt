@@ -252,7 +252,8 @@ type t =
 {
   header : header ;
   payload : payload ;
-  signature : string
+  signature : string ;
+  unsigned_token : string
 }
 
 let b64_url_encode str =
@@ -297,7 +298,8 @@ let t_of_token token =
         let header = header_of_string (b64_url_decode header_encoded) in
         let payload = payload_of_string (b64_url_decode payload_encoded) in
         let signature = b64_url_decode signature_encoded in
-        { header ; payload ; signature }
+        let unsigned_token = header_encoded ^ "." ^ payload_encoded in
+        { header ; payload ; signature; unsigned_token }
     | _ -> raise Bad_token
   with _ -> raise Bad_token
 
