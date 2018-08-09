@@ -356,7 +356,8 @@ let verify ~alg ~jwks t =
   let signature = signature_of_t t in
   let unsigned_token = unsigned_token_of_header_and_payload header payload in
   let module J = Yojson.Basic.Util in
-  typ_of_header header = Some alg
+  typ_of_header header = Some "JWT"
+  && algorithm_of_header header |> string_of_algorithm = alg
   && match kid_of_header header with
      | None -> false
      | Some kid ->
