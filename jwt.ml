@@ -227,7 +227,7 @@ let payload_of_json json =
     (fun x -> match x with
     | (claim, `String value) -> (claim, value)
     | (claim, `Int value) -> (claim, string_of_int value)
-    | _ -> raise Bad_payload
+    | (claim, value) -> (claim, Yojson.Basic.to_string value)
     )
     (Yojson.Basic.Util.to_assoc json)
 
