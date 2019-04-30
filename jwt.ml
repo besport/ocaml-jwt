@@ -69,6 +69,8 @@ type header =
   kid : string option
 }
 
+let make_header ~alg ?typ ?kid () = { alg ; typ ; kid }
+
 let header_of_algorithm_and_typ alg typ = { alg ; typ ; kid = None}
 
 (* ------- *)

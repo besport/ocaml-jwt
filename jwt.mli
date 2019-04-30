@@ -53,6 +53,13 @@ val algorithm_of_string :
 
 type header
 
+val make_header :
+  alg:algorithm ->
+  ?typ:string ->
+  ?kid:string ->
+  unit ->
+  header
+
 val header_of_algorithm_and_typ :
   algorithm ->
   string option ->
