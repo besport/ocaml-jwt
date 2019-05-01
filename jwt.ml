@@ -239,7 +239,12 @@ let payload_of_string str =
 let json_of_payload payload =
   let members =
     map
-      (fun (claim, value) -> ((string_of_claim claim), `String value))
+      (fun (claim, value) -> 
+        match string_of_claim claim with
+        | "exp"
+        | "iat" -> ((string_of_claim claim), `Int (int_of_string value))
+        | _ -> ((string_of_claim claim), `String value)
+      )
       payload
   in
   `Assoc members
