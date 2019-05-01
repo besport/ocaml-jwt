@@ -7,7 +7,7 @@ build: [["make" "build"]]
 install: [["make" "install"]]
 remove: [["make" "remove"]]
 depends: [
-  "base64"
+  "base64" {< "3.0.0"}
   "yojson"
   "cryptokit"
   "nocrypto"
