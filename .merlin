@@ -1,5 +1,0 @@
-PKG base64
-PKG cryptokit
-PKG nocrypto
-PKG yojson
-PKG re.str

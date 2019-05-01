@@ -1,5 +1,0 @@
-requires = "base64 cryptokit nocrypto re.str yojson"
-version = "0.1"
-description = "Implementation of JSON Web Tokens in OCaml"
-archive(byte) = "jwt.cma"
-archive(native) = "jwt.cmxa"

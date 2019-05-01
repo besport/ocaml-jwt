@@ -46,8 +46,8 @@ let fn_of_algorithm = function
 
 let string_of_algorithm = function
   | RS256 _ -> "RS256"
-  | HS256 x -> "HS256"
-  | HS512 x -> "HS512"
+  | HS256 _ -> "HS256"
+  | HS512 _ -> "HS512"
   | Unknown -> ""
 
 let algorithm_of_string = function
@@ -216,11 +216,9 @@ let add_claim claim value payload =
 
 let find_claim claim payload =
   let (_, value) =
-    List.find (fun (c, v) -> (string_of_claim c) = (string_of_claim claim)) payload
+    List.find (fun (c, _v) -> (string_of_claim c) = (string_of_claim claim)) payload
   in
   value
-
-let iter f p = List.iter f p
 
 let map f p = List.map f p
 
