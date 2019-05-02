@@ -1,10 +1,4 @@
-*.a
-*.cma
-*.cmxa
-
-*.cmx
-*.cmo
-*.cmi
-*.o
-
-*.out
+.merlin
+jwt.install
+_opam/
+_build/

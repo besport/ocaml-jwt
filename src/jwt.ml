@@ -32,23 +32,28 @@ exception Bad_payload
 
 (* IMPROVEME: add other algorithm *)
 type algorithm =
+  | RS256 of Nocrypto.Rsa.priv option
   | HS256 of string (* the argument is the secret key *)
   | HS512 of string (* the argument is the secret key *)
   | Unknown
 
 let fn_of_algorithm = function
-  | HS256 x -> Cryptokit.MAC.hmac_sha256 x
-  | HS512 x -> Cryptokit.MAC.hmac_sha512 x
-  | Unknown -> Cryptokit.MAC.hmac_sha256 ""
+  | RS256 (Some key) -> (fun input_str -> Nocrypto.Rsa.PKCS1.sign ~hash:`SHA256 ~key (`Message (Cstruct.of_string input_str)) |> Cstruct.to_string)
+  | RS256 None -> failwith "Not supported"
+  | HS256 x -> Cryptokit.hash_string (Cryptokit.MAC.hmac_sha256 x)
+  | HS512 x -> Cryptokit.hash_string (Cryptokit.MAC.hmac_sha512 x)
+  | Unknown -> Cryptokit.hash_string (Cryptokit.MAC.hmac_sha256 "")
 
 let string_of_algorithm = function
-  | HS256 x -> "HS256"
-  | HS512 x -> "HS512"
+  | RS256 _ -> "RS256"
+  | HS256 _ -> "HS256"
+  | HS512 _ -> "HS512"
   | Unknown -> ""
 
 let algorithm_of_string = function
   | "HS256" -> HS256 ""
   | "HS512" -> HS512 ""
+  | "RS256" -> RS256 None
   | _       -> Unknown
 (* ---------- Algorithm ---------- *)
 (* ------------------------------- *)
@@ -61,9 +66,12 @@ type header =
 {
   alg : algorithm ;
   typ : string option; (* IMPROVEME: Need a sum type *)
+  kid : string option
 }
 
-let header_of_algorithm_and_typ alg typ = { alg ; typ }
+let make_header ~alg ?typ ?kid () = { alg ; typ ; kid }
+
+let header_of_algorithm_and_typ alg typ = { alg ; typ ; kid = None}
 
 (* ------- *)
 (* getters *)
@@ -72,15 +80,20 @@ let algorithm_of_header h = h.alg
 
 let typ_of_header h = h.typ
 
+let kid_of_header h = h.kid
+
 (* getters *)
 (* ------- *)
 
 let json_of_header header =
   `Assoc
     (("alg", `String (string_of_algorithm (algorithm_of_header header))) ::
-     (match typ_of_header header with
-      | Some typ -> [("typ", `String typ)]
-      | None -> []))
+       ((match typ_of_header header with
+        | Some typ -> [("typ", `String typ)]
+        | None -> [])
+        @(match kid_of_header header with
+        | Some kid -> [("kid", `String kid)]
+        | None -> [])))
 
 let string_of_header header =
   let json = json_of_header header in Yojson.Basic.to_string json
@@ -88,7 +101,8 @@ let string_of_header header =
 let header_of_json json =
   let alg = Yojson.Basic.Util.to_string (Yojson.Basic.Util.member "alg" json) in
   let typ = Yojson.Basic.Util.to_string_option (Yojson.Basic.Util.member "typ" json) in
-  { alg = algorithm_of_string alg ; typ }
+  let kid = Yojson.Basic.Util.to_string_option (Yojson.Basic.Util.member "kid" json) in
+  { alg = algorithm_of_string alg ; typ ; kid }
 
 let header_of_string str =
   header_of_json (Yojson.Basic.from_string str)
@@ -202,11 +216,9 @@ let add_claim claim value payload =
 
 let find_claim claim payload =
   let (_, value) =
-    List.find (fun (c, v) -> (string_of_claim c) = (string_of_claim claim)) payload
+    List.find (fun (c, _v) -> (string_of_claim c) = (string_of_claim claim)) payload
   in
   value
-
-let iter f p = List.iter f p
 
 let map f p = List.map f p
 
@@ -215,7 +227,7 @@ let payload_of_json json =
     (fun x -> match x with
     | (claim, `String value) -> (claim, value)
     | (claim, `Int value) -> (claim, string_of_int value)
-    | _ -> raise Bad_payload
+    | (claim, value) -> (claim, Yojson.Basic.to_string value)
     )
     (Yojson.Basic.Util.to_assoc json)
 
@@ -225,7 +237,12 @@ let payload_of_string str =
 let json_of_payload payload =
   let members =
     map
-      (fun (claim, value) -> ((string_of_claim claim), `String value))
+      (fun (claim, value) -> 
+        match string_of_claim claim with
+        | "exp"
+        | "iat" -> ((string_of_claim claim), `Int (int_of_string value))
+        | _ -> ((string_of_claim claim), `String value)
+      )
       payload
   in
   `Assoc members
@@ -243,7 +260,8 @@ type t =
 {
   header : header ;
   payload : payload ;
-  signature : string
+  signature : string ;
+  unsigned_token : string
 }
 
 let b64_url_encode str =
@@ -252,15 +270,16 @@ let b64_url_encode str =
 let b64_url_decode str =
   B64.decode ~alphabet:B64.uri_safe_alphabet str
 
-let t_of_header_and_payload header payload =
+let unsigned_token_of_header_and_payload header payload =
   let b64_header = (b64_url_encode (string_of_header header)) in
   let b64_payload = (b64_url_encode (string_of_payload payload)) in
+  b64_header ^ "." ^ b64_payload
+
+let t_of_header_and_payload header payload =
   let algo = fn_of_algorithm (algorithm_of_header header) in
-  let unsigned_token = b64_header ^ "." ^ b64_payload in
-  let signature =
-    Cryptokit.hash_string algo unsigned_token
-  in
-  { header ; payload ; signature }
+  let unsigned_token = unsigned_token_of_header_and_payload header payload in
+  let signature = algo unsigned_token in
+  { header ; payload ; signature ; unsigned_token }
 (* ------- *)
 (* getters *)
 
@@ -270,6 +289,7 @@ let payload_of_t t = t.payload
 
 let signature_of_t t = t.signature
 
+let unsigned_token_of_t t = t.unsigned_token
 (* getters *)
 (* ------- *)
 
@@ -281,15 +301,86 @@ let token_of_t t =
 
 let t_of_token token =
   try
-    let token_splitted = Re_str.split_delim (Re_str.regexp_string ".") token in
+    let token_splitted = Re.Str.split_delim (Re.Str.regexp_string ".") token in
     match token_splitted with
     | [ header_encoded ; payload_encoded ; signature_encoded ] ->
         let header = header_of_string (b64_url_decode header_encoded) in
         let payload = payload_of_string (b64_url_decode payload_encoded) in
         let signature = b64_url_decode signature_encoded in
-        { header ; payload ; signature }
+        let unsigned_token = header_encoded ^ "." ^ payload_encoded in
+        { header ; payload ; signature; unsigned_token }
     | _ -> raise Bad_token
   with _ -> raise Bad_token
 
 (* ----------- JWT type ----------- *)
 (* -------------------------------- *)
+
+(* ---------------------------------- *)
+(* ----------- Verification ---------- *)
+
+let asn1_sha256 =
+  Cstruct.of_string "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20"
+
+let pkcs1_sig header body =
+  let hlen = Cstruct.len header in
+  if Cstruct.check_bounds body hlen
+  then
+    match Cstruct.split ~start:0 body hlen with
+    | a, b when Cstruct.equal a header -> Some b
+    | _ -> None
+  else
+    None
+
+let find_jwk ~jwks alg kid kty =
+  let module J = Yojson.Basic.Util in
+  let find_matching key =
+    J.member "alg" key = `String alg &&
+      J.member "kid" key = `String kid &&
+        J.member "kty" key = `String kty
+  in
+  match List.find find_matching @@ J.to_list jwks with
+  | exception Not_found -> None
+  | key ->
+     match J.member "n" key, J.member "e" key with
+     | `String n, `String e -> Some (n, e)
+     | _ -> None
+
+let rs256 n e signature unsigned_token =
+  let open Nocrypto in
+  let open Numeric in
+  let sign = Cstruct.of_string signature in
+  let n = Z.of_cstruct_be @@ Cstruct.of_string n in
+  let e = Z.of_cstruct_be @@ Cstruct.of_string e in
+  match Rsa.PKCS1.sig_decode ~key:Rsa.{n;e} sign with
+  | None -> false
+  | Some asn1_sign ->
+     match pkcs1_sig asn1_sha256 asn1_sign with
+     | None -> false
+     | Some decripted_sign ->
+        let token_hash = Hash.SHA256.digest @@ Cstruct.of_string unsigned_token in
+        Cstruct.equal decripted_sign token_hash
+
+let verify ~alg ~jwks t =
+  assert (alg = "RS256");
+  let header = header_of_t t in
+  let payload = payload_of_t t in
+  let signature = signature_of_t t in
+  let unsigned_token = unsigned_token_of_t t in
+  let module J = Yojson.Basic.Util in
+  typ_of_header header = Some "JWT"
+  && algorithm_of_header header |> string_of_algorithm = alg
+  && match kid_of_header header with
+     | None -> false
+     | Some kid ->
+        match find_jwk ~jwks alg kid "RSA" with
+        | None -> false
+        | Some (n, e) ->
+           let n = b64_url_decode n in
+           let e = b64_url_decode e in
+           rs256 n e signature unsigned_token
+           && match List.assoc "exp" payload with
+              | exp -> int_of_string exp > int_of_float @@ Unix.time ()
+              | exception Not_found -> true
+
+(* ----------- Verification ---------- *)
+(* ---------------------------------- *)

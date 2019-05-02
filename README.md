@@ -88,3 +88,13 @@ header and the payload from the token.
 
 You can use `Jwt.t_of_token` to get a type t with the header and the payload
 encoded in the token.
+
+## Development
+
+Build with dune:
+
+`dune build`
+
+To run the tests:
+
+`dune runtests`

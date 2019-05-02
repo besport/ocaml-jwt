@@ -32,13 +32,10 @@ exception Bad_payload
 
 (* IMPROVEME: add other algorithm *)
 type algorithm =
+  | RS256 of Nocrypto.Rsa.priv option
   | HS256 of string (* the argument is the secret key *)
   | HS512 of string (* the argument is the secret key *)
   | Unknown
-
-val fn_of_algorithm :
-  algorithm ->
-  Cryptokit.hash
 
 val string_of_algorithm :
   algorithm ->
@@ -56,6 +53,13 @@ val algorithm_of_string :
 
 type header
 
+val make_header :
+  alg:algorithm ->
+  ?typ:string ->
+  ?kid:string ->
+  unit ->
+  header
+
 val header_of_algorithm_and_typ :
   algorithm ->
   string option ->
@@ -69,16 +73,18 @@ val algorithm_of_header : header -> algorithm
 
 val typ_of_header : header -> string option
 
+val kid_of_header : header -> string option
+
 (* getters *)
 (* ------- *)
 
 val string_of_header : header -> string
 
-val json_of_header : header -> Yojson.Basic.json
+val json_of_header : header -> Yojson.Basic.t
 
 val header_of_string : string -> header
 
-val header_of_json : Yojson.Basic.json -> header
+val header_of_json : Yojson.Basic.t -> header
 
 (* ----------- Header ---------- *)
 (* ----------------------------- *)
@@ -194,20 +200,16 @@ val find_claim :
   string
 
 val string_of_payload :
-  string ->
-  payload
+  payload ->
+  string
 
 val payload_of_json :
-  Yojson.Basic.json ->
+  Yojson.Basic.t ->
   payload
 
 val json_of_payload :
   payload ->
-  Yojson.Basic.json
-
-val string_of_payload :
-  payload ->
-  string
+  Yojson.Basic.t
 
 (* ----------- Payload ---------- *)
 (* ------------------------------ *)
@@ -230,6 +232,8 @@ val payload_of_t : t -> payload
 
 val signature_of_t : t -> string
 
+val unsigned_token_of_t : t -> string
+
 (* getters *)
 (* ------- *)
 
@@ -239,3 +243,5 @@ val t_of_token : string -> t
 
 (* ----------- JWT type ----------- *)
 (* -------------------------------- *)
+
+val verify : alg:string -> jwks:Yojson.Basic.t -> t -> bool
