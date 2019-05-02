@@ -1,0 +1,8 @@
+(executable
+ (name test)
+ (modules test)
+ (libraries jwt base64))
+
+(alias
+ (name   runtest)
+ (action (run ./test.exe)))

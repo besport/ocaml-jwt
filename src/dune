@@ -1,0 +1,5 @@
+(library
+ (name jwt)
+ (public_name jwt)
+ (modules jwt)
+ (libraries base64 yojson cryptokit re.str nocrypto))
