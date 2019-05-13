@@ -52,7 +52,7 @@ let _ =
 
 (* From build function *)
 let header =
-  Jwt.header_of_algorithm_and_typ (Jwt.HS256 (generate_random_string 100)) "JWT"
+  Jwt.header_of_algorithm_and_typ (Jwt.HS256 (generate_random_string 100)) (Some "JWT")
 
 let _ =
   print_endline "Test header_of_algorithm_and_typ" ;
