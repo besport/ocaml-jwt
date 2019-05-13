@@ -13,13 +13,18 @@ The suggested pronunciation of JWT is the same as the English word "jot".
 
 ## How to install?
 
-You can use OPAM to get the last released version:
+The last version of nocrypto:
+```shell
+opam pin add nocrypto https://github.com/mirleft/ocaml-nocrypto.git
 ```
+
+You can use OPAM to get the last released version:
+```shell
 opam install jwt
 ```
 
 If you want the development version, you can pin the repository:
-```
+```shell
 opam pin add jwt https://github.com/besport/ocaml-jwt.git
 ```
 
@@ -88,3 +93,13 @@ header and the payload from the token.
 
 You can use `Jwt.t_of_token` to get a type t with the header and the payload
 encoded in the token.
+
+## Development
+
+Build with dune:
+
+`dune build`
+
+To run the tests:
+
+`dune runtests`

@@ -31,85 +31,66 @@ let generate_random_string length =
   let random_character _ = String.make 1 (char_of_int (random_character ())) in
   String.concat "" (Array.to_list (Array.init length random_character))
 
-(* ------ *)
-(* HEADER *)
+let check_header () =
+  let basic_json_header =
+    `Assoc [("alg", `String "HS256");("typ", `String "JWT")]
+  in
+  let expected_header = Yojson.Basic.to_string basic_json_header in
+  assert ((Jwt.string_of_header (Jwt.header_of_json basic_json_header)) =
+    expected_header)
 
-(* From JSON *)
-let header =
-  Jwt.header_of_json
-  (
-    `Assoc
+let check_payload () =
+  let basic_json_payload = `Assoc
     [
-      ("alg", `String "HS256") ;
-      ("typ", `String "JWT")
-    ]
-  )
-
-let _ =
-  print_endline "Test header_of_json" ;
-  print_endline (Jwt.string_of_header header) ;
-  print_endline "----------"
-
-(* From build function *)
-let header =
-  Jwt.header_of_algorithm_and_typ (Jwt.HS256 (generate_random_string 100)) (Some "JWT")
-
-let _ =
-  print_endline "Test header_of_algorithm_and_typ" ;
-  print_endline (Jwt.string_of_header header) ;
-  print_endline "----------"
-
-(* HEADER *)
-(* ------ *)
-
-(* ------- *)
-(* PAYLOAD *)
-
-let payload =
-  let open Jwt in
-  empty_payload
-  |> add_claim iss "https://chat.besport.com"
-  |> add_claim sub "BeSport Connect"
-
-let _ =
-  print_endline "Test payload" ;
-  print_endline (Jwt.string_of_payload payload) ;
-  print_endline "----------"
-
-let payload =
-  Jwt.payload_of_json
-  (
-    `Assoc
-    [
+      ("sub", `String "BeSport Connect");
       ("iss", `String "https://chat.besport.com") ;
-      ("sub", `String "BeSport Connect")
     ]
-  )
+  in
+  let expected_string_payload = Yojson.Basic.to_string basic_json_payload in
+  let payload_build_with_fn =
+    let open Jwt in
+    empty_payload
+    |> add_claim iss "https://chat.besport.com"
+    |> add_claim sub "BeSport Connect"
+  in
+  let payload_with_json = Jwt.payload_of_json basic_json_payload in
+  assert ((Jwt.string_of_payload payload_build_with_fn) =
+    expected_string_payload);
+  assert ((Jwt.string_of_payload payload_with_json) =
+    expected_string_payload)
 
-let _ =
-  print_endline "Test payload_of_json" ;
-  print_endline (Jwt.string_of_payload payload) ;
-  print_endline "----------"
-
-(* PAYLOAD *)
-(* ------- *)
-
-(* ------ *)
-(* TYPE T *)
-
-let _ =
+(* FIXME: The tests must be rewritten because quite ugly *)
+(*
+let check_type_t () =
   let t = Jwt.t_of_header_and_payload header payload in
   print_endline "Test token generation from a type t" ;
   print_endline (Jwt.token_of_t t) ;
   print_endline "----------"
-
-let _ =
+*)
+(*
+let check_payload () =
   let t = Jwt.t_of_header_and_payload header payload in
   let t_2 = Jwt.t_of_token (Jwt.token_of_t t) in
+  let encoded_signature_t =
+    match Base64.encode (Jwt.signature_of_t t) with
+    | Ok s -> s
+    | Error _ -> failwith "Error while encoding"
+  in
+  let encoded_signature_t2 = match Base64.encode (Jwt.signature_of_t t_2) with
+  | Ok s -> s
+  | Error _ -> failwith "Error while encoding"
+  in
   print_endline "Test t_of_token. The next lines must be equal.";
   print_endline (Jwt.string_of_header header) ;
   print_endline (Jwt.string_of_header (Jwt.header_of_t t_2)) ;
   print_endline (Jwt.string_of_payload payload) ;
   print_endline (Jwt.string_of_payload (Jwt.payload_of_t t_2)) ;
-  print_endline (B64.encode (Jwt.signature_of_t t)) ;
-  print_endline (B64.encode (Jwt.signature_of_t t_2))
+  print_endline encoded_signature_t;
+  print_endline encoded_signature_t2
+*)
+
+let () =
+  print_endline "Checking header";
+  check_header ();
+  print_endline "Checking payload";
+  check_payload ()

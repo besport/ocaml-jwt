@@ -1,0 +1,13 @@
+opam-version: "2.0"
+name: "jwt"
+version: "0.1"
+maintainer: "Danny Willems <contact@danny-willems.be>"
+author: "Danny Willems <contact@danny-willems.be>"
+build: [["dune" "build" "-p" name "-j" jobs]]
+depends: [
+  "base64" {= "3.0.0"}
+  "yojson" {>= "1.6.0"}
+  "cryptokit"
+  "nocrypto"
+  "re"
+]
