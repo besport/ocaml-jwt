@@ -90,5 +90,7 @@ let check_payload () =
 *)
 
 let () =
+  print_endline "Checking header";
   check_header ();
+  print_endline "Checking payload";
   check_payload ()
