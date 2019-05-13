@@ -1,5 +1,3 @@
-opam pin add nocrypto https://github.com/mirleft/ocaml-nocrypto.git
-opam pin add jwt .
-opam install jwt
-dune build
+opam pin add nocrypto https://github.com/mirleft/ocaml-nocrypto.git -y
+opam pin add jwt . -y
 dune runtest
