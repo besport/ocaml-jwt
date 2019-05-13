@@ -102,4 +102,4 @@ Build with dune:
 
 To run the tests:
 
-`dune runtests`
+`dune runtest`
