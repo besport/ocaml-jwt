@@ -265,10 +265,18 @@ type t =
 }
 
 let b64_url_encode str =
-  B64.encode ~pad:false ~alphabet:B64.uri_safe_alphabet str
+  let r = Base64.encode ~pad:false ~alphabet:Base64.uri_safe_alphabet str in
+  match r with
+  | Ok s -> s
+  | Error _ -> failwith (Printf.sprintf "Something wrong happened while encoding
+  %s" str)
 
 let b64_url_decode str =
-  B64.decode ~alphabet:B64.uri_safe_alphabet str
+  let r = Base64.decode ~alphabet:Base64.uri_safe_alphabet str in
+  match r with
+  | Ok s -> s
+  | Error _ -> failwith (Printf.sprintf "Something wrong happened while decoding
+  %s" str)
 
 let unsigned_token_of_header_and_payload header payload =
   let b64_header = (b64_url_encode (string_of_header header)) in

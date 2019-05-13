@@ -106,10 +106,19 @@ let _ =
 let _ =
   let t = Jwt.t_of_header_and_payload header payload in
   let t_2 = Jwt.t_of_token (Jwt.token_of_t t) in
+  let encoded_signature_t =
+    match Base64.encode (Jwt.signature_of_t t) with
+    | Ok s -> s
+    | Error _ -> failwith "Error while encoding"
+  in
+  let encoded_signature_t2 = match Base64.encode (Jwt.signature_of_t t_2) with
+  | Ok s -> s
+  | Error _ -> failwith "Error while encoding"
+  in
   print_endline "Test t_of_token. The next lines must be equal.";
   print_endline (Jwt.string_of_header header) ;
   print_endline (Jwt.string_of_header (Jwt.header_of_t t_2)) ;
   print_endline (Jwt.string_of_payload payload) ;
   print_endline (Jwt.string_of_payload (Jwt.payload_of_t t_2)) ;
-  print_endline (B64.encode (Jwt.signature_of_t t)) ;
-  print_endline (B64.encode (Jwt.signature_of_t t_2))
+  print_endline encoded_signature_t;
+  print_endline encoded_signature_t2
