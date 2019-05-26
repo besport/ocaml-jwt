@@ -33,16 +33,16 @@ exception Bad_payload
 (* IMPROVEME: add other algorithm *)
 type algorithm =
   | RS256 of Nocrypto.Rsa.priv option
-  | HS256 of string (* the argument is the secret key *)
-  | HS512 of string (* the argument is the secret key *)
+  | HS256 of Cstruct.t (* the argument is the secret key *)
+  | HS512 of Cstruct.t (* the argument is the secret key *)
   | Unknown
 
 let fn_of_algorithm = function
   | RS256 (Some key) -> (fun input_str -> Nocrypto.Rsa.PKCS1.sign ~hash:`SHA256 ~key (`Message (Cstruct.of_string input_str)) |> Cstruct.to_string)
   | RS256 None -> failwith "Not supported"
-  | HS256 x -> Cryptokit.hash_string (Cryptokit.MAC.hmac_sha256 x)
-  | HS512 x -> Cryptokit.hash_string (Cryptokit.MAC.hmac_sha512 x)
-  | Unknown -> Cryptokit.hash_string (Cryptokit.MAC.hmac_sha256 "")
+  | HS256 key -> (fun input_str -> (Nocrypto.Hash.SHA256.hmac ~key (Cstruct.of_string input_str)) |> Cstruct.to_string)
+  | HS512 key -> (fun input_str -> (Nocrypto.Hash.SHA512.hmac ~key (Cstruct.of_string input_str)) |> Cstruct.to_string)
+  | Unknown -> (fun input_str -> (Nocrypto.Hash.SHA512.hmac ~key:(Cstruct.of_string "") (Cstruct.of_string input_str)) |> Cstruct.to_string)
 
 let string_of_algorithm = function
   | RS256 _ -> "RS256"
@@ -51,8 +51,8 @@ let string_of_algorithm = function
   | Unknown -> ""
 
 let algorithm_of_string = function
-  | "HS256" -> HS256 ""
-  | "HS512" -> HS512 ""
+  | "HS256" -> HS256 (Cstruct.of_string "")
+  | "HS512" -> HS512 (Cstruct.of_string "")
   | "RS256" -> RS256 None
   | _       -> Unknown
 (* ---------- Algorithm ---------- *)
