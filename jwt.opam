@@ -5,7 +5,7 @@ maintainer: "Danny Willems <contact@danny-willems.be>"
 author: "Danny Willems <contact@danny-willems.be>"
 build: [["dune" "build" "-p" name "-j" jobs]]
 depends: [
-  "base64" {= "3.0.0"}
+  "base64" {>= "3.0.0"}
   "yojson"
   "cryptokit"
   "nocrypto"
