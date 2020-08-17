@@ -21,30 +21,32 @@
  * License.  This exception does not however invalidate any other reasons
  * why the executable file might be covered by the GNU Library General
  * Public License.
-*)
+ *)
 
 let generate_random_string length =
-  let random_character () = match Random.int (26 + 26 + 10) with
-    n when n < 26 -> int_of_char 'a' + n
-  | n when n < 26 + 26 -> int_of_char 'A' + n - 26
-  | n -> int_of_char '0' + n - 26 - 26 in
+  let random_character () =
+    match Random.int (26 + 26 + 10) with
+    | n when n < 26 -> int_of_char 'a' + n
+    | n when n < 26 + 26 -> int_of_char 'A' + n - 26
+    | n -> int_of_char '0' + n - 26 - 26
+  in
   let random_character _ = String.make 1 (char_of_int (random_character ())) in
   String.concat "" (Array.to_list (Array.init length random_character))
 
 let check_header () =
   let basic_json_header =
-    `Assoc [("alg", `String "HS256");("typ", `String "JWT")]
+    `Assoc [("alg", `String "HS256"); ("typ", `String "JWT")]
   in
   let expected_header = Yojson.Basic.to_string basic_json_header in
-  assert ((Jwt.string_of_header (Jwt.header_of_json basic_json_header)) =
-    expected_header)
+  assert (
+    Jwt.string_of_header (Jwt.header_of_json basic_json_header)
+    = expected_header )
 
 let check_payload () =
-  let basic_json_payload = `Assoc
-    [
-      ("sub", `String "BeSport Connect");
-      ("iss", `String "https://chat.besport.com") ;
-    ]
+  let basic_json_payload =
+    `Assoc
+      [ ("sub", `String "BeSport Connect");
+        ("iss", `String "https://chat.besport.com") ]
   in
   let expected_string_payload = Yojson.Basic.to_string basic_json_payload in
   let payload_build_with_fn =
@@ -54,10 +56,8 @@ let check_payload () =
     |> add_claim sub "BeSport Connect"
   in
   let payload_with_json = Jwt.payload_of_json basic_json_payload in
-  assert ((Jwt.string_of_payload payload_build_with_fn) =
-    expected_string_payload);
-  assert ((Jwt.string_of_payload payload_with_json) =
-    expected_string_payload)
+  assert (Jwt.string_of_payload payload_build_with_fn = expected_string_payload) ;
+  assert (Jwt.string_of_payload payload_with_json = expected_string_payload)
 
 (* FIXME: The tests must be rewritten because quite ugly *)
 (*
@@ -90,7 +90,7 @@ let check_payload () =
 *)
 
 let () =
-  print_endline "Checking header";
-  check_header ();
-  print_endline "Checking payload";
+  print_endline "Checking header" ;
+  check_header () ;
+  print_endline "Checking payload" ;
   check_payload ()
