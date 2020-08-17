@@ -13,11 +13,6 @@ The suggested pronunciation of JWT is the same as the English word "jot".
 
 ## How to install?
 
-The last version of nocrypto:
-```shell
-opam pin add nocrypto https://github.com/mirleft/ocaml-nocrypto.git
-```
-
 You can use OPAM to get the last released version:
 ```shell
 opam install jwt
@@ -27,6 +22,9 @@ If you want the development version, you can pin the repository:
 ```shell
 opam pin add jwt https://github.com/besport/ocaml-jwt.git
 ```
+
+A pin-depends to ocaml-nocrypto has been added for the commit:
+ed7bb8d911dc340e36d85d335d9edb8339f0932d.
 
 ## Documentation
 
@@ -103,3 +101,11 @@ Build with dune:
 To run the tests:
 
 `dune runtest`
+
+
+## How to contribute?
+
+- Use ocamlformat.0.15.0
+```
+opam install ocmalformat.0.15.0
+```

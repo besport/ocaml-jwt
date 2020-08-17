@@ -2,11 +2,21 @@ opam-version: "2.0"
 name: "jwt"
 version: "0.1"
 maintainer: "Danny Willems <contact@danny-willems.be>"
-author: "Danny Willems <contact@danny-willems.be>"
-build: [["dune" "build" "-p" name "-j" jobs]]
+authors: "Danny Willems <contact@danny-willems.be>"
+synopsis: "OCaml implementation of JWT"
+description: "OCaml implementation of JWT"
+homepage: "https://github.com/besport/ocaml-jwt"
+dev-repo: "git+https://github.com/besport/ocaml-jwt.git"
+bug-reports: "https://github.com/besport/ocaml-jwt/issues"
+license: "LGPL-2.1"
 depends: [
   "base64" {>= "3.0.0"}
   "yojson"
-  "nocrypto"
+  "nocrypto" {>= "0.5.4-2" }
   "re"
+]
+build: [["dune" "build" "-p" name "-j" jobs]]
+run-test: [[ "dune" "runtest" "-p" name "-j" jobs ]]
+pin-depends: [
+  ["nocrypto.0.5.4-2" "git+https://github.com/mirleft/ocaml-nocrypto.git#ed7bb8d911dc340e36d85d335d9edb8339f0932d"]
 ]
