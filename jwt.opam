@@ -3,6 +3,8 @@ name: "jwt"
 version: "0.1"
 maintainer: "Danny Willems <contact@danny-willems.be>"
 author: "Danny Willems <contact@danny-willems.be>"
+homepage: "https://github.com/besport/ocaml-jwt"
+bug-reports: "https://github.com/besport/ocaml-jwt/issues"
 build: [["dune" "build" "-p" name "-j" jobs]]
 depends: [
   "base64" {>= "3.0.0"}
