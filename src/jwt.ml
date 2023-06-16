@@ -27,6 +27,8 @@ exception Bad_token
 
 exception Bad_payload
 
+open Yojson.Basic
+
 (* ------------------------------- *)
 (* ---------- Algorithm ---------- *)
 
